@@ -2,7 +2,8 @@
 
 (ns emmy.expression.render-test
   (:refer-clojure :exclude [+ - * /])
-  (:require [clojure.test :refer [is deftest testing use-fixtures]]
+  (:require [clojure.string]
+            [clojure.test :refer [is deftest testing use-fixtures]]
             [emmy.abstract.function :as af]
             [emmy.calculus.derivative :refer [D taylor-series]]
             [emmy.expression.render :as r :refer [->infix ->TeX ->JavaScript]]
