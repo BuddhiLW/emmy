@@ -2,6 +2,12 @@
 
 ## [unreleased]
 
+## [0.33.0-fork.1]
+
+Released from the BuddhiLW/emmy fork so the changes below can be used before
+they land upstream. Each entry is an open pull request against
+mentat-collective/emmy; the fork returns to upstream releases once they merge.
+
 - #199:
 
   - opens the set of compilation modes in `emmy.expression.compile`. The final
@@ -36,6 +42,16 @@
 
   - `and` and `or` render every argument in `->TeX`, `->infix` and
     `->JavaScript`; before, only the first two were written.
+
+- #198:
+
+  - `emmy.expression.render/->JavaScript` renders two-argument `(atan y x)` as
+    `Math.atan2(y, x)`. It rendered `Math.atan(y, x)`, which JavaScript
+    evaluates as `Math.atan(y)`, so `:js` compiled functions were wrong
+    whenever `x < 0`.
+
+- #200: CI moves to `actions/cache`, `checkout`, `setup-java` and
+  `setup-node` v4.
 
 ## [0.32.0]
 
