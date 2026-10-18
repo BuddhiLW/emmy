@@ -25,6 +25,30 @@ Host protocol: call `_initialize` once, then for each command
 The result buffer belongs to giac and is valid until the next call. All calls
 share one giac context, so definitions persist (`f(x):=x^2+1`, then `f(3)`).
 
+`giac-cli.wasm` run with no arguments is a server: one command per line on
+stdin, each result written as STX result ETX. `emmy.giac.process` drives it
+from the JVM.
+
+## From Emmy
+
+```clojure
+(require '[emmy.giac :as giac] '[emmy.giac.process :as gp])
+
+(def e (gp/start!))                               ; one Giac session
+(giac/integrate e '(* x (exp x) (sin x)) 'x)      ; Emmy expression back
+(giac/call e 'diff '(f x y) 'x)                   ; => (((partial 0) f) x y)
+(giac/configure! e {:assume ['(> x 0)]})          ; session settings as data
+(giac/simplify e '(sqrt (expt x 2)))              ; => x
+(giac/latex e '(/ 1 x))                           ; Giac's own LaTeX
+```
+
+- Out: `emmy.giac.render/->giac` renders an Emmy expression as Giac input,
+  next to Emmy's `->TeX` and `->JavaScript`.
+- Back: `emmy_sexp`, a printer `emmy.giac/install!` defines inside Giac,
+  writes any result as EDN from Giac's own expression tree; `emmy.giac/->emmy`
+  rebuilds it with Emmy's generic arithmetic.
+- Engines implement `emmy.giac/IGiac`; the process engine is the first.
+
 ## Build
 
 Needs [wasi-sdk](https://github.com/WebAssembly/wasi-sdk) 33 or later (C++
