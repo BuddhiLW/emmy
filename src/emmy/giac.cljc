@@ -131,12 +131,21 @@
   '{"=" =, ">" >, "<" <, ">=" >=, "<=" <=, "!=" not=})
 
 (def ^:private operators
-  {"+" g/+, "*" g/*, "^" g/expt, "-" g/negate, "inv" g/invert,
-   "exp" g/exp, "ln" g/log, "sqrt" g/sqrt, "abs" g/abs,
-   "sin" g/sin, "cos" g/cos, "tan" g/tan,
-   "asin" g/asin, "acos" g/acos, "atan" g/atan,
-   "sinh" g/sinh, "cosh" g/cosh, "tanh" g/tanh,
-   "floor" g/floor, "ceil" g/ceiling})
+  (let [;; Emmy evaluates (cos 2) to a float; wrapping exact numbers keeps
+        ;; Giac's exact answers exact: (cos (literal-number 2)) stays (cos 2).
+        exactly (fn [f]
+                  (fn [& xs]
+                    (apply f (map #(if (and (number? %) (g/exact? %))
+                                     (an/literal-number %)
+                                     %)
+                                  xs))))]
+    {"+" g/+, "*" g/*, "-" g/negate, "inv" g/invert,
+     "^" (exactly g/expt), "exp" (exactly g/exp), "ln" (exactly g/log),
+     "sqrt" (exactly g/sqrt), "abs" g/abs,
+     "sin" (exactly g/sin), "cos" (exactly g/cos), "tan" (exactly g/tan),
+     "asin" (exactly g/asin), "acos" (exactly g/acos), "atan" (exactly g/atan),
+     "sinh" (exactly g/sinh), "cosh" (exactly g/cosh), "tanh" (exactly g/tanh),
+     "floor" g/floor, "ceil" g/ceiling}))
 
 (defn ->emmy
   "Converts a value printed by `emmy_sexp` and read as EDN into an Emmy value.
